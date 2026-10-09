@@ -24,9 +24,15 @@ dist/
 .coverage
 htmlcov/
 
-# --- Данные, модели, артефакты экспериментов (политика данных — ЛР2) ---
+# --- Данные, модели, артефакты экспериментов (политика данных: data/README.md) ---
+# В Git только описание, контракт и разрешенный учебный образец.
 data/*
 !data/README.md
+!data/contract.json
+data/raw/
+data/processed/
+# Отчеты валидации воспроизводятся командой из README и сохраняются как артефакт CI
+reports/
 models/
 artifacts/
 mlruns/
@@ -36,6 +42,8 @@ mlartifacts/
 *.onnx
 *.parquet
 *.csv
+# Разрешенный учебный образец — после *.csv, иначе это правило его перекроет
+!data/housing_sample.csv
 
 # --- Ноутбуки и IDE ---
 .ipynb_checkpoints/

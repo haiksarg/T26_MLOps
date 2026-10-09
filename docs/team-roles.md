@@ -18,3 +18,17 @@
 4. Изменения Release lead проходят через pull request в `main` с review другого участника.
 
 Правила `main` и исключения процесса: [docs/evidence/lr1-branch-rules.md](evidence/lr1-branch-rules.md).
+
+# Роли команды №4 в ЛР2
+
+Пять ролей ЛР2 совмещаются. Работа собирается в ветке `lab2/data-contract`
+и попадает в `main` одним pull request.
+
+| Участник | Роль в ЛР2 | Зона результата | Issue |
+|---|---|---|---|
+| Саргсян Айк ([@haiksarg](https://github.com/haiksarg)) | Contract engineer, Repository and documentation reviewer | Образец и его происхождение, `data/contract.json`, политика Git для данных, README, итоговый PR, tag `lr2-v1` | [#13](https://github.com/haiksarg/T26_MLOps/issues/13) |
+| Ильин Андрей ([@icy07](https://github.com/icy07)) | Quality engineer | Валидатор, отрицательные тесты, проверка данных в CI | [#14](https://github.com/haiksarg/T26_MLOps/issues/14) |
+| Шереметов Мурат ([@Sheremgato](https://github.com/Sheremgato)) | Data steward, Leakage reviewer | Карточка данных, стратегия разделения, `FEATURES` и тест против утечки | [#15](https://github.com/haiksarg/T26_MLOps/issues/15) |
+
+Путь изменений участников: форк → своя ветка (`adreyil`, `mourberg`) — review Release lead →
+`lab2/data-contract` → итоговый PR в `main` с review участника, который не является автором.
