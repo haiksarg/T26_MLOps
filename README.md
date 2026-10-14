@@ -148,7 +148,18 @@ git diff --exit-code data/raw/housing.csv.dvc
 
 Если источник изменился, `dvc update` перепишет контрольную сумму в `.dvc`-файле, и `git diff`
 покажет это (код `1`) — тогда дальше не продолжайте. Предупреждение `stage ... is frozen` ожидаемо:
-стадия импорта заморожена, поэтому `dvc repro` не скачивает файл заново.
+стадия импорта заморожена, поэтому `dvc repro` не скачивает файл заново и работает без сети.
+
+Если `raw.githubusercontent.com` недоступен и `dvc update` падает с ошибкой сети, скачайте тот же файл
+через API GitHub и передайте его DVC:
+
+```bash
+python -c "import urllib.request as u; r = u.Request('https://api.github.com/repos/ageron/handson-ml2/contents/datasets/housing/housing.csv?ref=aa555aa16b9d0af6c84e67c7757f3317d05acb12', headers={'Accept': 'application/vnd.github.raw'}); open('data/raw/housing.csv', 'wb').write(u.urlopen(r).read())"
+dvc commit -f data/raw/housing.csv.dvc
+git diff --exit-code data/raw/housing.csv.dvc
+```
+
+`dvc commit` пересчитывает контрольную сумму: если файл тот же, `.dvc`-файл не меняется и `git diff` молчит.
 
 **2. Запуск и проверка.**
 
