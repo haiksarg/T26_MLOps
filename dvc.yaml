@@ -1,6 +1,6 @@
+
 stages:
-  # Входной шлюз: полный набор проверяется контрактом из ЛР2.
-  # При нарушении валидатор возвращает ненулевой код и dvc repro останавливается.
+  # Проверка полного набора данных по контракту.
   validate:
     cmd: python -m housing_price.validate_data --data data/raw/housing.csv --contract data/contract.json --report reports/validation/raw.json
     deps:
@@ -9,3 +9,16 @@ stages:
       - src/housing_price/validate_data.py
     outs:
       - reports/validation/raw.json
+
+  # Разделение проверенных данных на train и test.
+  split:
+    cmd: python -m housing_price.split_data --params params.yaml
+    deps:
+      - data/raw/housing.csv
+      - reports/validation/raw.json
+      - src/housing_price/split_data.py
+    params:
+      - split
+    outs:
+      - data/split/train.csv
+      - data/split/test.csv
