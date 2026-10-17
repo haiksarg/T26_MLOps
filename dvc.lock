@@ -21,3 +21,40 @@ stages:
       hash: md5
       md5: de852648c450abf395abb85f807fa56e
       size: 5106
+  split:
+    cmd: python -m housing_price.split_data --params params.yaml
+    deps:
+    - path: data/raw/housing.csv
+      hash: md5
+      md5: d1c47305887e2252bf1ccbd74ff159a6
+      size: 1423529
+    - path: reports/validation/raw.json
+      hash: md5
+      md5: de852648c450abf395abb85f807fa56e
+      size: 5106
+    - path: src/housing_price/split_data.py
+      hash: md5
+      md5: 0f9b37f3be6d63b8b0d8a2ae8f3b718f
+      size: 1834
+    params:
+      params.yaml:
+        split:
+          test_size: 0.2
+          random_state: 42
+          stratify_column: median_income
+          stratify_bins:
+          - 0.0
+          - 1.5
+          - 3.0
+          - 4.5
+          - 6.0
+          - .inf
+    outs:
+    - path: data/split/test.csv
+      hash: md5
+      md5: 43bf3cb69bef728cce9fa97faebdb4a6
+      size: 284811
+    - path: data/split/train.csv
+      hash: md5
+      md5: 131680669808a555153454fe09f19b19
+      size: 1138854
