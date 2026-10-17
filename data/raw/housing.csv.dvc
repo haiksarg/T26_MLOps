@@ -1,0 +1,13 @@
+md5: a89a6b923ef289c96c4b6b2d167e1a7e
+frozen: true
+deps:
+- checksum: '"fdba56aea067f8f42209e825c909a1b87d5969efc9e4563c11d11fc92f0e70bd"'
+  size: 1423529
+  hash: md5
+  path: 
+    https://raw.githubusercontent.com/ageron/handson-ml2/aa555aa16b9d0af6c84e67c7757f3317d05acb12/datasets/housing/housing.csv
+outs:
+- md5: d1c47305887e2252bf1ccbd74ff159a6
+  size: 1423529
+  hash: md5
+  path: housing.csv

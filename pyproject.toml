@@ -8,10 +8,15 @@ version = "0.1.0"
 description = "Учебный MLOps-проект: прогнозирование стоимости жилья"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
-dependencies = []
+dependencies = [
+    "pandas==3.0.6",
+    "pyyaml==6.0.3",
+    "scikit-learn==1.9.1",
+]
 
 [project.optional-dependencies]
 dev = [
+    "dvc==3.67.1",
     "pytest==9.1.1",
     "ruff==0.16.10",
 ]

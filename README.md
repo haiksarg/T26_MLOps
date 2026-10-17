@@ -132,6 +132,63 @@ python -m housing_price.validate_data --data data/housing_sample.csv --contract 
 Отчет лежит в `reports/validation/lr2.json` и в Git не коммитится. В CI он сохраняется артефактом:
 Actions → нужный запуск → Artifacts → `validation-report`.
 
+## Пайплайн данных (DVC)
+
+Команды выполняются в активированном окружении `.venv`: DVC устанавливается вместе с `.[dev]`,
+а стадии запускают `python` из этого окружения.
+
+**1. Полный набор.** В Git хранится только `data/raw/housing.csv.dvc`: ссылка на источник
+и контрольная сумма файла (`dvc import-url`). Удаленного хранилища DVC нет — источник публичный,
+и DVC сам скачивает файл по ссылке:
+
+```bash
+dvc update data/raw/housing.csv.dvc
+git diff --exit-code data/raw/housing.csv.dvc
+```
+
+Если источник изменился, `dvc update` перепишет контрольную сумму в `.dvc`-файле, и `git diff`
+покажет это (код `1`) — тогда дальше не продолжайте. Предупреждение `stage ... is frozen` ожидаемо:
+стадия импорта заморожена, поэтому `dvc repro` не скачивает файл заново и работает без сети.
+
+Если `raw.githubusercontent.com` недоступен и `dvc update` падает с ошибкой сети, скачайте тот же файл
+через API GitHub и передайте его DVC:
+
+```bash
+python -c "import urllib.request as u; r = u.Request('https://api.github.com/repos/ageron/handson-ml2/contents/datasets/housing/housing.csv?ref=aa555aa16b9d0af6c84e67c7757f3317d05acb12', headers={'Accept': 'application/vnd.github.raw'}); open('data/raw/housing.csv', 'wb').write(u.urlopen(r).read())"
+dvc commit -f data/raw/housing.csv.dvc
+git diff --exit-code data/raw/housing.csv.dvc
+```
+
+`dvc commit` пересчитывает контрольную сумму: если файл тот же, `.dvc`-файл не меняется и `git diff` молчит.
+
+**2. Запуск и проверка.**
+
+```bash
+dvc repro
+dvc dag
+dvc status
+dvc params show
+```
+
+`dvc repro` выполняет только стадии, у которых изменились зависимости или параметры.
+После запуска `dvc status` должен ответить `Data and pipelines are up to date.`
+
+| Стадия | Что делает | Результат | Владелец |
+|---|---|---|---|
+| `validate` | проверяет полный набор контрактом `data/contract.json`; при нарушении `dvc repro` останавливается | `reports/validation/raw.json` | @haiksarg |
+| `split` | стратифицированное разделение train/test (`params.yaml` → `split`) | `data/split/` | @Sheremgato |
+| `preprocess` | заполнение пропусков, кодирование, масштабирование — обучаются только на train | `data/processed/`, `models/` | @icy07 |
+
+Разделение выполняется **до** предобработки: так статистики масштабирования и словарь категорий
+вычисляются только по train и не «подсматривают» в test (`docs/data-card.md`, раздел 8).
+
+**3. Изменение параметров.** Измените значение в `params.yaml` (например, `split.test_size`):
+`dvc status` покажет затронутые стадии, `dvc repro` перезапустит только их,
+`dvc params diff` сравнит параметры с зафиксированными в `dvc.lock`.
+
+Результаты стадий (`reports/`, `data/split/`, `data/processed/`, `models/`) в Git не коммитятся:
+их воспроизводит `dvc repro`, а `dvc.lock` фиксирует контрольные суммы входов и выходов.
+
 ## Документация
 
 - [CONTRIBUTING.md](CONTRIBUTING.md)

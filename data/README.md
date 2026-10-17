@@ -4,8 +4,9 @@
 |---|---|---|
 | `contract.json` | да | Машинный контракт данных — исполнимые правила проверки |
 | `housing_sample.csv` | да | Разрешенный учебный образец (40 строк) |
-| `raw/` | нет | Полный набор, скачивается по инструкции ниже |
-| `processed/` | нет | Производные данные, воспроизводятся командами проекта |
+| `raw/housing.csv.dvc` | да | Ссылка на источник и контрольная сумма полного набора (`dvc import-url`) |
+| `raw/housing.csv` | нет | Полный набор, скачивается по инструкции ниже |
+| `split/`, `processed/` | нет | Результаты стадий DVC-пайплайна, воспроизводятся `dvc repro` |
 
 Человеческое описание набора — назначение, лицензия, ограничения, стратегия разделения —
 в [docs/data-card.md](../docs/data-card.md).
@@ -23,12 +24,11 @@
 Пересобрать образец и убедиться, что он совпадает байт в байт:
 
 ```bash
-python -c "import urllib.request; urllib.request.urlretrieve('https://raw.githubusercontent.com/ageron/handson-ml2/aa555aa16b9d0af6c84e67c7757f3317d05acb12/datasets/housing/housing.csv', 'data/raw/housing.csv')"
-python -m housing_price.make_sample --source data/raw/housing.csv --output data/processed/housing_sample.csv --expected-sha256 8a3727f4cf54ac1a327f69b1d5b4db54c5834ea81c6e4efc0d163300022a685e
+dvc update data/raw/housing.csv.dvc
+python -m housing_price.make_sample --source data/raw/housing.csv --output data/raw/housing_sample_rebuilt.csv --expected-sha256 8a3727f4cf54ac1a327f69b1d5b4db54c5834ea81c6e4efc0d163300022a685e
 ```
 
 Вторая команда печатает SHA-256 образца — он должен совпасть со значением в таблице.
-Каталог `data/raw/` должен существовать перед скачиванием (`mkdir data/raw` или `New-Item -ItemType Directory data/raw`).
 
 Проверить SHA-256 файла в репозитории:
 

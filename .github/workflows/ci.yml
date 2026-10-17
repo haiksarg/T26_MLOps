@@ -27,3 +27,26 @@ jobs:
       - run: python -m ruff check .
       - run: python -m pytest -q
       - run: python -m housing_price
+
+  # Пайплайн DVC с нуля: скачать полный набор по ссылке из data/raw/housing.csv.dvc,
+  # убедиться, что контрольная сумма не изменилась, выполнить dvc repro.
+  pipeline:
+    needs: quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev]"
+      - run: dvc update data/raw/housing.csv.dvc
+      - run: git diff --exit-code data/raw/housing.csv.dvc
+      - run: dvc repro
+      - run: dvc dag
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: pipeline-reports
+          path: reports/
