@@ -1,0 +1,20 @@
+# Параметры DVC-пайплайна. Стадии читают значения отсюда; dvc.lock фиксирует,
+# с какими значениями был получен каждый результат (dvc params diff).
+
+data:
+  raw: data/raw/housing.csv
+  contract: data/contract.json
+  split_dir: data/split
+  processed_dir: data/processed
+
+# Стадия split — владелец @Sheremgato. Стратегия: docs/data-card.md, раздел 8.
+split:
+  test_size: 0.2
+  random_state: 42
+  stratify_column: median_income
+  stratify_bins: [0.0, 1.5, 3.0, 4.5, 6.0, .inf]
+
+# Стадия preprocess — владелец @icy07. Все преобразования обучаются только на train.
+preprocess:
+  numeric_impute_strategy: median
+  scale_numeric: true

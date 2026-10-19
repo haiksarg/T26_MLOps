@@ -250,7 +250,10 @@ def validate(
 
 def _write_report(path: Path, report: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    # newline="\n": на Windows write_text иначе пишет CRLF, и MD5 отчета в dvc.lock другой.
+    path.write_text(
+        json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n"
+    )
 
 
 def main(argv: list[str] | None = None) -> int:

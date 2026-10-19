@@ -32,3 +32,14 @@
 
 Путь изменений участников: форк → своя ветка (`adreyil`, `mourberg`) — review Release lead →
 `lab2/data-contract` → итоговый PR в `main` с review участника, который не является автором.
+
+# Роли команды №4 в ЛР3
+
+Пайплайн DVC: `validate` → `split` → `preprocess`. Работа собирается в ветке `lab3/dvc-pipeline`.
+Каждый участник сдает **один PR** из своего форка: в нем и работа, и evidence card.
+
+| Участник | Зона результата в ЛР3 | Issue |
+|---|---|---|
+| Саргсян Айк ([@haiksarg](https://github.com/haiksarg)) | DVC, полный набор под DVC, `params.yaml`, стадия `validate`, CI, итоговый PR, tag `lr3-v1` | [#23](https://github.com/haiksarg/T26_MLOps/issues/23) |
+| Шереметов Мурат ([@Sheremgato](https://github.com/Sheremgato)) | Стадия `split`: стратифицированное разделение train/test, тесты разделения | [#24](https://github.com/haiksarg/T26_MLOps/issues/24) |
+| Ильин Андрей ([@icy07](https://github.com/icy07)) | Стадия `preprocess`: предобработка, обученная только на train, отчет и тесты | [#25](https://github.com/haiksarg/T26_MLOps/issues/25) |
