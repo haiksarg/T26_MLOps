@@ -1,3 +1,7 @@
-# Образец данных хранится байт в байт: Git не меняет окончания строк при checkout
-# (например, core.autocrlf=true на Windows), иначе SHA-256 не совпадет с data/README.md.
+# Все текстовые файлы хранятся и выдаются с LF на любой ОС. Иначе на Windows (core.autocrlf=true)
+# исходники, контракт, dvc.lock и *.dvc получают CRLF, и MD5 зависимостей в dvc.lock не совпадают с Linux.
+* text=auto eol=lf
+
+# Образец данных хранится байт в байт: Git не меняет окончания строк при checkout,
+# иначе SHA-256 не совпадет с data/README.md.
 data/housing_sample.csv -text
