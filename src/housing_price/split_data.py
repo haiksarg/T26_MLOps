@@ -55,8 +55,8 @@ def main(argv: list[str] | None = None) -> int:
 
     split_dir.mkdir(parents=True, exist_ok=True)
 
-    train.to_csv(split_dir / "train.csv", index=False)
-    test.to_csv(split_dir / "test.csv", index=False)
+    train.to_csv(split_dir / "train.csv", index=False, lineterminator="\n")
+    test.to_csv(split_dir / "test.csv", index=False, lineterminator="\n")
 
     print(f"train: {len(train)} rows; test: {len(test)} rows")
 

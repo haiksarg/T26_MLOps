@@ -219,3 +219,10 @@ def test_command_line_exit_codes(tmp_path):
     assert good_run.returncode == 0
     assert bad_run.returncode == 1
     assert "range:housing_median_age" in bad_run.stderr
+
+def test_report_is_written_with_lf_line_endings(tmp_path):
+    """Отчет пишется с LF на любой ОС: иначе его MD5 в dvc.lock зависит от Windows/Linux."""
+    report_path = tmp_path / "report.json"
+    code = main(["--data", str(SAMPLE), "--contract", str(CONTRACT), "--report", str(report_path)])
+    assert code == 0
+    assert b"\r" not in report_path.read_bytes()
