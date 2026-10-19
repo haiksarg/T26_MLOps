@@ -22,3 +22,20 @@ stages:
     outs:
       - data/split/train.csv
       - data/split/test.csv
+  # Предобработка признаков: fit только на train, transform на train и test.
+  preprocess:
+    cmd: python -m housing_price.preprocess --params params.yaml
+    deps:
+      - data/split/train.csv
+      - data/split/test.csv
+      - src/housing_price/preprocess.py
+      - src/housing_price/features.py
+    params:
+      - preprocess
+    outs:
+      - data/processed/train.csv
+      - data/processed/test.csv
+      - models/preprocessor.joblib
+    metrics:
+      - reports/preprocess_metrics.json:
+          cache: false

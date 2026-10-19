@@ -14,8 +14,8 @@ stages:
       size: 1423529
     - path: src/housing_price/validate_data.py
       hash: md5
-      md5: 81b43f4da64329384edf0a6be96a99fc
-      size: 12372
+      md5: ae0dbb14c6fe3cae562469a9d096d6a4
+      size: 12518
     outs:
     - path: reports/validation/raw.json
       hash: md5
@@ -34,8 +34,8 @@ stages:
       size: 5106
     - path: src/housing_price/split_data.py
       hash: md5
-      md5: 0f9b37f3be6d63b8b0d8a2ae8f3b718f
-      size: 1834
+      md5: d0f5ac6ceaeb5cc872dd08aa57b972c8
+      size: 1876
     params:
       params.yaml:
         split:
@@ -58,3 +58,44 @@ stages:
       hash: md5
       md5: 131680669808a555153454fe09f19b19
       size: 1138854
+  preprocess:
+    cmd: python -m housing_price.preprocess --params params.yaml
+    deps:
+    - path: data/split/test.csv
+      hash: md5
+      md5: 43bf3cb69bef728cce9fa97faebdb4a6
+      size: 284811
+    - path: data/split/train.csv
+      hash: md5
+      md5: 131680669808a555153454fe09f19b19
+      size: 1138854
+    - path: src/housing_price/features.py
+      hash: md5
+      md5: 56c008bca130f71f4a560e22a962fd03
+      size: 545
+    - path: src/housing_price/preprocess.py
+      hash: md5
+      md5: c730ca5d05f50362a0520f3558e2a52d
+      size: 5386
+    params:
+      params.yaml:
+        preprocess:
+          numeric_impute_strategy: median
+          scale_numeric: true
+    outs:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: e30773c6d0ee8d46b104c6df3548fd60
+      size: 770019
+    - path: data/processed/train.csv
+      hash: md5
+      md5: 91820de902a00e84fe4098c478d37473
+      size: 3079531
+    - path: models/preprocessor.joblib
+      hash: md5
+      md5: 37c7640ccd1a9bc2ff6c7c92668eaeb2
+      size: 4348
+    - path: reports/preprocess_metrics.json
+      hash: md5
+      md5: 6f60af4c5096997a6824384672ad13c4
+      size: 181
