@@ -99,3 +99,62 @@ stages:
       hash: md5
       md5: 6f60af4c5096997a6824384672ad13c4
       size: 181
+  train:
+    cmd: python -m housing_price.train --params params.yaml
+    deps:
+    - path: data/raw/housing.csv
+      hash: md5
+      md5: d1c47305887e2252bf1ccbd74ff159a6
+      size: 1423529
+    - path: reports/validation/raw.json
+      hash: md5
+      md5: de852648c450abf395abb85f807fa56e
+      size: 5106
+    - path: src/housing_price/features.py
+      hash: md5
+      md5: 56c008bca130f71f4a560e22a962fd03
+      size: 545
+    - path: src/housing_price/models.py
+      hash: md5
+      md5: 682ca927d61c11cb653a10c41b86e493
+      size: 1740
+    - path: src/housing_price/preprocess.py
+      hash: md5
+      md5: c730ca5d05f50362a0520f3558e2a52d
+      size: 5386
+    - path: src/housing_price/split_data.py
+      hash: md5
+      md5: d0f5ac6ceaeb5cc872dd08aa57b972c8
+      size: 1876
+    - path: src/housing_price/train.py
+      hash: md5
+      md5: f8e37d0e011a7f3e947ea1b5c0293191
+      size: 8345
+    params:
+      params.yaml:
+        preprocess:
+          numeric_impute_strategy: median
+          scale_numeric: true
+        split:
+          test_size: 0.2
+          random_state: 42
+          stratify_column: median_income
+          stratify_bins:
+          - 0.0
+          - 1.5
+          - 3.0
+          - 4.5
+          - 6.0
+          - .inf
+        train:
+          model: median_baseline
+          seed: 42
+    outs:
+    - path: models/model.joblib
+      hash: md5
+      md5: 97133d22c1193a7f3b18995e0d91508c
+      size: 5018
+    - path: reports/train_metrics.json
+      hash: md5
+      md5: d5443ab26d9216bc82dfbd6d73005a73
+      size: 162
