@@ -24,3 +24,5 @@ preprocess:
 train:
   model: median_baseline
   seed: 42
+  rf_n_estimators: 100
+  rf_max_depth: 12

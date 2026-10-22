@@ -116,8 +116,8 @@ stages:
       size: 545
     - path: src/housing_price/models.py
       hash: md5
-      md5: 682ca927d61c11cb653a10c41b86e493
-      size: 1740
+      md5: 0494f94b9c89a27c7a606f50c1188683
+      size: 2716
     - path: src/housing_price/preprocess.py
       hash: md5
       md5: c730ca5d05f50362a0520f3558e2a52d
@@ -149,6 +149,8 @@ stages:
         train:
           model: median_baseline
           seed: 42
+          rf_n_estimators: 100
+          rf_max_depth: 12
     outs:
     - path: models/model.joblib
       hash: md5
