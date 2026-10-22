@@ -32,7 +32,7 @@ py -3.12 -m venv .venv
 .venv\Scripts\Activate.ps1
 python --version
 python -m pip install --upgrade pip
-python -m pip install -e ".[dev]"
+python -m pip install -e ".[dev,data,tracking]"
 ```
 
 Linux или macOS:
@@ -42,7 +42,7 @@ python3.12 -m venv .venv
 source .venv/bin/activate
 python --version
 python -m pip install --upgrade pip
-python -m pip install -e ".[dev]"
+python -m pip install -e ".[dev,data,tracking]"
 ```
 
 Команда `python --version` должна показать `Python 3.12.x`. Если версия другая,
@@ -134,7 +134,7 @@ Actions → нужный запуск → Artifacts → `validation-report`.
 
 ## Пайплайн данных (DVC)
 
-Команды выполняются в активированном окружении `.venv`: DVC устанавливается вместе с `.[dev]`,
+Команды выполняются в активированном окружении `.venv`: DVC устанавливается вместе с `.[data]`,
 а стадии запускают `python` из этого окружения.
 
 **1. Полный набор.** В Git хранится только `data/raw/housing.csv.dvc`: ссылка на источник
@@ -178,6 +178,7 @@ dvc params show
 | `validate` | проверяет полный набор контрактом `data/contract.json`; при нарушении `dvc repro` останавливается | `reports/validation/raw.json` | @haiksarg |
 | `split` | стратифицированное разделение train/test (`params.yaml` → `split`) | `data/split/` | @Sheremgato |
 | `preprocess` | заполнение пропусков, кодирование, масштабирование — обучаются только на train | `data/processed/`, `models/` | @icy07 |
+| `train` | обучение принятой конфигурации (`params.yaml` → `train`) без MLflow | `models/model.joblib`, `reports/train_metrics.json` | @haiksarg |
 
 Разделение выполняется **до** предобработки: так статистики масштабирования и словарь категорий
 вычисляются только по train и не «подсматривают» в test (`docs/data-card.md`, раздел 8).
@@ -188,6 +189,32 @@ dvc params show
 
 Результаты стадий (`reports/`, `data/split/`, `data/processed/`, `models/`) в Git не коммитятся:
 их воспроизводит `dvc repro`, а `dvc.lock` фиксирует контрольные суммы входов и выходов.
+
+## Эксперименты MLflow (ЛР4)
+
+План эксперимента, основная метрика и точка отсчета — в `docs/adr/0002-metric-and-baseline.md`.
+Запуски хранятся в локальной базе SQLite `mlflow.db`; она и артефакты (`mlruns/`, `mlartifacts/`)
+в Git не коммитятся.
+
+```bash
+export MLFLOW_TRACKING_URI=sqlite:///mlflow.db
+dvc repro validate
+python -m housing_price.train --mlflow
+mlflow ui --backend-store-uri sqlite:///mlflow.db
+```
+
+В PowerShell: `$env:MLFLOW_TRACKING_URI="sqlite:///mlflow.db"`. Интерфейс — http://127.0.0.1:5000.
+
+- Фактор эксперимента (`train.model`) и `train.seed` меняются **только в `params.yaml`**, код между
+  запусками не правится; после серии запусков `git checkout params.yaml` и `dvc repro` возвращают
+  принятую конфигурацию.
+- `train.seed` задает разбиение train/test и случайность модели; run называется `<model>-seed<seed>`.
+- Каждый run хранит параметры, метрики (`mae`, `rmse`, точку отсчета `baseline_mae`, `mae_skill`),
+  теги `git_commit`, `git_dirty`, `data_sha256`, `dvc_md5`, `contract_version`, `seed`, `model`
+  и модель (pipeline предобработки + регрессор) с сигнатурой.
+- Модель сохраняется в формате skops; типы, которым skops не доверяет, разрешаются явно списком
+  `SKOPS_TRUSTED_TYPES` в `src/housing_price/models.py` после проверки, а не переходом на pickle.
+- `reports/run.json` хранит идентификатор последнего run — к нему привязывается решение о выпуске в ЛР5.
 
 ## Документация
 

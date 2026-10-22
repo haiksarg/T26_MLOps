@@ -39,3 +39,23 @@ stages:
     metrics:
       - reports/preprocess_metrics.json:
           cache: false
+  # Обучение принятой конфигурации (params.yaml → train), без MLflow. Запуски эксперимента — с флагом --mlflow.
+  train:
+    cmd: python -m housing_price.train --params params.yaml
+    deps:
+      - data/raw/housing.csv
+      - reports/validation/raw.json
+      - src/housing_price/train.py
+      - src/housing_price/models.py
+      - src/housing_price/split_data.py
+      - src/housing_price/preprocess.py
+      - src/housing_price/features.py
+    params:
+      - split
+      - preprocess
+      - train
+    outs:
+      - models/model.joblib
+    metrics:
+      - reports/train_metrics.json:
+          cache: false
