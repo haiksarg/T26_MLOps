@@ -32,7 +32,7 @@ py -3.12 -m venv .venv
 .venv\Scripts\Activate.ps1
 python --version
 python -m pip install --upgrade pip
-python -m pip install -e ".[dev]"
+python -m pip install -e ".[dev,data,tracking]"
 ```
 
 Linux или macOS:
@@ -42,7 +42,7 @@ python3.12 -m venv .venv
 source .venv/bin/activate
 python --version
 python -m pip install --upgrade pip
-python -m pip install -e ".[dev]"
+python -m pip install -e ".[dev,data,tracking]"
 ```
 
 Команда `python --version` должна показать `Python 3.12.x`. Если версия другая,
@@ -91,10 +91,10 @@ housing-price 0.1.0
 
 Версия контракта (`contract_version`) меняется осознанно:
 
-| Изменение | Версия | Пример |
-|---|---|---|
-| Описание без изменения проверки | patch: `1.0.0 → 1.0.1` | уточнен текст `description` |
-| Совместимое добавление необязательного поля | minor: `1.0.0 → 1.1.0` | новый столбец с `"nullable": true` |
+| Изменение                                                              | Версия                 | Пример                                             |
+| ---------------------------------------------------------------------- | ---------------------- | -------------------------------------------------- |
+| Описание без изменения проверки                                        | patch: `1.0.0 → 1.0.1` | уточнен текст `description`                        |
+| Совместимое добавление необязательного поля                            | minor: `1.0.0 → 1.1.0` | новый столбец с `"nullable": true`                 |
 | Удаление или переименование поля, изменение типа, смысла или диапазона | major: `1.0.0 → 2.0.0` | `median_house_value` перестал обрезаться на 500001 |
 
 ## Проверка данных
@@ -117,11 +117,11 @@ python -m housing_price.validate_data --data data/housing_sample.csv --contract 
 
 Коды завершения:
 
-| Код | Значение |
-|---|---|
-| 0 | все проверки пройдены, в отчете `"passed": true` |
-| 1 | нарушение данных: отчет записан с `"passed": false`, неуспешные правила выведены в stderr |
-| 2 | ошибка запуска: нет файла, поврежденный JSON, в контракте нет `contract_version`, `dataset` или `columns` |
+| Код | Значение                                                                                                  |
+| --- | --------------------------------------------------------------------------------------------------------- |
+| 0   | все проверки пройдены, в отчете `"passed": true`                                                          |
+| 1   | нарушение данных: отчет записан с `"passed": false`, неуспешные правила выведены в stderr                 |
+| 2   | ошибка запуска: нет файла, поврежденный JSON, в контракте нет `contract_version`, `dataset` или `columns` |
 
 Ожидаемый вывод для образца (код 0):
 
@@ -134,7 +134,7 @@ Actions → нужный запуск → Artifacts → `validation-report`.
 
 ## Пайплайн данных (DVC)
 
-Команды выполняются в активированном окружении `.venv`: DVC устанавливается вместе с `.[dev]`,
+Команды выполняются в активированном окружении `.venv`: DVC устанавливается вместе с `.[data]`,
 а стадии запускают `python` из этого окружения.
 
 **1. Полный набор.** В Git хранится только `data/raw/housing.csv.dvc`: ссылка на источник
@@ -173,11 +173,12 @@ dvc params show
 `dvc repro` выполняет только стадии, у которых изменились зависимости или параметры.
 После запуска `dvc status` должен ответить `Data and pipelines are up to date.`
 
-| Стадия | Что делает | Результат | Владелец |
-|---|---|---|---|
-| `validate` | проверяет полный набор контрактом `data/contract.json`; при нарушении `dvc repro` останавливается | `reports/validation/raw.json` | @haiksarg |
-| `split` | стратифицированное разделение train/test (`params.yaml` → `split`) | `data/split/` | @Sheremgato |
-| `preprocess` | заполнение пропусков, кодирование, масштабирование — обучаются только на train | `data/processed/`, `models/` | @icy07 |
+| Стадия       | Что делает                                                                                        | Результат                                           | Владелец    |
+| ------------ | ------------------------------------------------------------------------------------------------- | --------------------------------------------------- | ----------- |
+| `validate`   | проверяет полный набор контрактом `data/contract.json`; при нарушении `dvc repro` останавливается | `reports/validation/raw.json`                       | @haiksarg   |
+| `split`      | стратифицированное разделение train/test (`params.yaml` → `split`)                                | `data/split/`                                       | @Sheremgato |
+| `preprocess` | заполнение пропусков, кодирование, масштабирование — обучаются только на train                    | `data/processed/`, `models/`                        | @icy07      |
+| `train`      | обучение принятой конфигурации (`params.yaml` → `train`) без MLflow                               | `models/model.joblib`, `reports/train_metrics.json` | @haiksarg   |
 
 Разделение выполняется **до** предобработки: так статистики масштабирования и словарь категорий
 вычисляются только по train и не «подсматривают» в test (`docs/data-card.md`, раздел 8).
@@ -188,6 +189,70 @@ dvc params show
 
 Результаты стадий (`reports/`, `data/split/`, `data/processed/`, `models/`) в Git не коммитятся:
 их воспроизводит `dvc repro`, а `dvc.lock` фиксирует контрольные суммы входов и выходов.
+
+## Эксперименты MLflow (ЛР4)
+
+План эксперимента, основная метрика и точка отсчета — в `docs/adr/0002-metric-and-baseline.md`.
+Запуски хранятся в локальной базе SQLite `mlflow.db`; она и артефакты (`mlruns/`, `mlartifacts/`)
+в Git не коммитятся.
+
+```bash
+export MLFLOW_TRACKING_URI=sqlite:///mlflow.db
+dvc repro validate
+python -m housing_price.train --mlflow
+mlflow ui --backend-store-uri sqlite:///mlflow.db
+```
+
+В PowerShell: `$env:MLFLOW_TRACKING_URI="sqlite:///mlflow.db"`. Интерфейс — http://127.0.0.1:5000.
+
+- Фактор эксперимента (`train.model`) и `train.seed` меняются **только в `params.yaml`**, код между
+  запусками не правится; после серии запусков `git checkout params.yaml` и `dvc repro` возвращают
+  принятую конфигурацию.
+- `train.seed` задает разбиение train/test и случайность модели; run называется `<model>-seed<seed>`.
+- Каждый run хранит параметры, метрики (`mae`, `rmse`, точку отсчета `baseline_mae`, `mae_skill`),
+  теги `git_commit`, `git_dirty`, `data_sha256`, `dvc_md5`, `contract_version`, `seed`, `model`
+  и модель (pipeline предобработки + регрессор) с сигнатурой.
+- Модель сохраняется в формате skops; типы, которым skops не доверяет, разрешаются явно списком
+  `SKOPS_TRUSTED_TYPES` в `src/housing_price/models.py` после проверки, а не переходом на pickle.
+- `reports/run.json` хранит идентификатор последнего run — к нему привязывается решение о выпуске в ЛР5.
+
+## Сравнение запусков (ЛР4)
+
+Сравнение выполнено по плану [ADR 0002](docs/adr/0002-metric-and-baseline.md): основная метрика — MAE на test в USD (меньше — лучше), точка отсчета — `median_baseline`. Фактор — только `train.model`; seed `42, 7, 13, 21, 99` задают разбиение train/test и случайность модели. Данные одной версии: `data_sha256` `8a3727f4cf54ac1a327f69b1d5b4db54c5834ea81c6e4efc0d163300022a685e`. Серия: 3 модели × 5 seed = **15 запусков**, дополнительных попыток не было.
+
+Запуск и сравнение:
+
+```bash
+python -m housing_price.run_experiment --seeds 42 7 13 21 99 --models median_baseline linear_regression random_forest
+python -m housing_price.compare_runs --experiment housing-price
+```
+
+σ — выборочное стандартное отклонение MAE по пяти seed (ddof=1). `mae_skill = 1 − mae / baseline_mae`.
+
+| Вариант           |   n | MAE среднее ± σ | Baseline MAE (среднее) | mae_skill |
+| ----------------- | --: | --------------: | ---------------------: | --------: |
+| random_forest     |   5 | 33767.4 ± 253.7 |                88635.1 |    0.6190 |
+| linear_regression |   5 | 50026.1 ± 337.7 |                88635.1 |    0.4356 |
+| median_baseline   |   5 | 88635.1 ± 892.7 |                88635.1 |    0.0000 |
+
+Попарные сравнения по критерию 2σ (разница значима, если `|Δ| > 2·max(σ1, σ2)`):
+
+| Сравнение                                                         | Разница средних MAE | Порог 2σ | Вывод                            |
+| ----------------------------------------------------------------- | ------------------: | -------: | -------------------------------- |
+| random_forest против median_baseline                              |            +54867.7 |   1785.5 | значимо: random_forest лучше     |
+| linear_regression против median_baseline                          |            +38608.9 |   1785.5 | значимо: linear_regression лучше |
+| random_forest против linear_regression (лучший против следующего) |            +16258.7 |    675.4 | значимо: random_forest лучше     |
+
+**Вывод.** Обе модели устойчиво лучше baseline, а `random_forest` — лучше линейной регрессии: разницы многократно превышают порог 2σ. Лучший запуск — `random_forest-seed42`, MAE 33411.2.
+
+**Кандидат для ЛР5:** `random_forest` с `rf_n_estimators: 100`, `rf_max_depth: 12`, `seed: 42` (записан в `params.yaml`).
+
+**Ограничения.** Критерий 2σ при пяти seed — учебное правило, а не доказательство статистической значимости. Гиперпараметры не подбирались. Сравнение выполнено по test, поэтому оценка выбранной модели не является независимой. Данные — районы Калифорнии 1990 года с верхним ограничением цены 500001 USD; случайное разбиение не доказывает переносимость на другие годы и регионы.
+
+**Воспроизводимость между ОС.** Метрики лучшего запуска совпадают на Windows и macOS: файл
+`reports/train_metrics.json` идентичен байт в байт. Сам файл модели `models/model.joblib` на этих ОС
+различается, поэтому на другой ОС `dvc repro` меняет в `dvc.lock` его MD5 и размер; причина пока не установлена.
+Модель сравнивается по метрикам, а не по контрольной сумме файла. Изменение этих двух строк в `dvc.lock` не коммитьте.
 
 ## Документация
 

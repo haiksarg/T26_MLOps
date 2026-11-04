@@ -40,6 +40,8 @@ data/split/
 reports/
 models/
 artifacts/
+# MLflow: база запусков и артефакты локальные, в Git не коммитятся (ЛР4)
+mlflow.db
 mlruns/
 mlartifacts/
 *.pkl
