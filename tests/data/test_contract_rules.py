@@ -1,4 +1,4 @@
-"""Параметризованные тесты правил контракта (ЛР5, issue #40).
+"""Параметризованные тесты правил контракта и проверки формы строк (ЛР5, issue #40).
 
 Каждый файл создается только через fixture csv_factory во временном каталоге,
 эталонный data/housing_sample.csv не изменяется.
@@ -12,6 +12,9 @@ import pytest
 
 from housing_price.validate_data import main
 
+# Число правил для образца: 33 правила контракта + row_shape.
+EXPECTED_RULES = 34
+
 
 def run_validator(data: Path, contract: Path, tmp_path: Path) -> tuple[int, dict]:
     report_path = tmp_path / "reports" / "report.json"
@@ -21,6 +24,10 @@ def run_validator(data: Path, contract: Path, tmp_path: Path) -> tuple[int, dict
 
 def failed_checks(report: dict) -> set[str]:
     return {check["name"] for check in report["checks"] if not check["passed"]}
+
+
+def check_by_name(report: dict, name: str) -> dict:
+    return next(check for check in report["checks"] if check["name"] == name)
 
 
 def with_value(frame: pd.DataFrame, column: str, value: object, row: int = 0) -> pd.DataFrame:
@@ -96,3 +103,54 @@ def test_boundary_and_allowed_values_pass(
     assert code == 0
     assert report["passed"] is True
     assert failed_checks(report) == set()
+
+
+def test_valid_frame_reports_row_shape_and_all_rules(
+    valid_frame, csv_factory, contract_path, tmp_path
+):
+    code, report = run_validator(csv_factory(valid_frame), contract_path, tmp_path)
+
+    assert code == 0
+    assert check_by_name(report, "row_shape")["passed"] is True
+    assert len(report["checks"]) == EXPECTED_RULES
+
+
+def reshape_line(path: Path, line_number: int, change) -> Path:
+    """Изменить строку файла из csv_factory. Нумерация как в отчете: заголовок - строка 1."""
+    lines = path.read_text(encoding="utf-8").split("\n")
+    lines[line_number - 1] = change(lines[line_number - 1])
+    path.write_text("\n".join(lines), encoding="utf-8", newline="\n")
+    return path
+
+
+def test_extra_value_fails_row_shape(valid_frame, csv_factory, contract_path, tmp_path):
+    """Строка с 11 значениями при 10 столбцах в заголовке раньше проходила с кодом 0."""
+    data = reshape_line(csv_factory(valid_frame), 6, lambda line: line + ",999")
+
+    code, report = run_validator(data, contract_path, tmp_path)
+
+    assert code == 1
+    assert report["passed"] is False
+    assert failed_checks(report) == {"row_shape"}
+    assert "строки файла: 6" in check_by_name(report, "row_shape")["details"]
+
+
+def test_missing_value_fails_row_shape(valid_frame, csv_factory, contract_path, tmp_path):
+    data = reshape_line(csv_factory(valid_frame), 4, lambda line: line.rsplit(",", 1)[0])
+
+    code, report = run_validator(data, contract_path, tmp_path)
+
+    assert code == 1
+    assert "row_shape" in failed_checks(report)
+    assert "строки файла: 4" in check_by_name(report, "row_shape")["details"]
+
+
+def test_row_shape_lists_every_bad_row(valid_frame, csv_factory, contract_path, tmp_path):
+    data = csv_factory(valid_frame)
+    reshape_line(data, 3, lambda line: line + ",1")
+    reshape_line(data, 10, lambda line: line + ",1,2")
+
+    code, report = run_validator(data, contract_path, tmp_path)
+
+    assert code == 1
+    assert "строки файла: 3, 10" in check_by_name(report, "row_shape")["details"]
