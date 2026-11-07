@@ -10,7 +10,7 @@ from housing_price.features import FEATURES, TARGET
 def load_contract_columns():
     """Загрузить описание столбцов из контракта."""
     contract = json.loads(
-        Path("data/contract.json").read_text(encoding="utf-8")
+        (Path(__file__).resolve().parents[2] / "data" / "contract.json").read_text(encoding="utf-8")
     )
     return contract["columns"]
 

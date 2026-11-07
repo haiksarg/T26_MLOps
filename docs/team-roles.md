@@ -43,3 +43,27 @@
 | Саргсян Айк ([@haiksarg](https://github.com/haiksarg)) | DVC, полный набор под DVC, `params.yaml`, стадия `validate`, CI, итоговый PR, tag `lr3-v1` | [#23](https://github.com/haiksarg/T26_MLOps/issues/23) |
 | Шереметов Мурат ([@Sheremgato](https://github.com/Sheremgato)) | Стадия `split`: стратифицированное разделение train/test, тесты разделения | [#24](https://github.com/haiksarg/T26_MLOps/issues/24) |
 | Ильин Андрей ([@icy07](https://github.com/icy07)) | Стадия `preprocess`: предобработка, обученная только на train, отчет и тесты | [#25](https://github.com/haiksarg/T26_MLOps/issues/25) |
+
+# Роли команды №4 в ЛР4
+
+Трек 6 «Стоимость жилья»: baseline — медиана цены train, варианты — линейная регрессия и случайный лес,
+по 5 seed на вариант (15 запусков MLflow). Работа собирается в ветке `lab4/experiments`.
+Каждый участник сдает **один PR** из своего форка: в нем и работа, и evidence card.
+
+| Участник | Зона результата в ЛР4 | Issue |
+|---|---|---|
+| Саргсян Айк ([@haiksarg](https://github.com/haiksarg)) | `train.py`: обучение и журналирование в MLflow (теги версий, сигнатура, skops, `reports/run.json`), baseline, стадия `train`, зависимости, CI, итоговый PR, tag `lr4-v1` | [#31](https://github.com/haiksarg/T26_MLOps/issues/31) |
+| Шереметов Мурат ([@Sheremgato](https://github.com/Sheremgato)) | ADR 0002 «основная метрика и baseline», варианты — линейная регрессия и случайный лес, доверенные типы skops | [#32](https://github.com/haiksarg/T26_MLOps/issues/32) |
+| Ильин Андрей ([@icy07](https://github.com/icy07)) | 15 запусков эксперимента, сравнение через `mlflow.search_runs`, таблица со средним и разбросом в README, вывод | [#33](https://github.com/haiksarg/T26_MLOps/issues/33) |
+
+# Роли команды №4 в ЛР5
+
+С ЛР5 в команде четверо. Работа собирается в ветке `lab5/testing-pipeline`.
+Каждый участник сдает **один PR** из своего форка: в нем и работа, и evidence card.
+
+| Участник | Роль в ЛР5 | Зона результата | Issue | Ветка для PR |
+|---|---|---|---|---|
+| Саргсян Айк ([@haiksarg](https://github.com/haiksarg)) | Integration engineer, Quality reviewer | Слои тестов, `conftest.py`, bundle, smoke-тест, отчеты, tag `lr5-v1` | [#39](https://github.com/haiksarg/T26_MLOps/issues/39) | `lab5/testing-pipeline` |
+| Комлев Кирилл ([@NGHtCONTROLLA](https://github.com/NGHtCONTROLLA)) | Data test engineer | Параметризованные тесты данных, проверка `row_shape` | [#40](https://github.com/haiksarg/T26_MLOps/issues/40) | `komlev` |
+| Ильин Андрей ([@icy07](https://github.com/icy07)) | Model test engineer | Тесты bundle и детерминированности | [#41](https://github.com/haiksarg/T26_MLOps/issues/41) | `adreyil` |
+| Шереметов Мурат ([@Sheremgato](https://github.com/Sheremgato)) | Evaluation test engineer | Предусловия метрик, отказ при постоянной цели | [#42](https://github.com/haiksarg/T26_MLOps/issues/42) | `mourberg` |

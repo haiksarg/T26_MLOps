@@ -11,7 +11,7 @@ import pytest
 
 from housing_price.validate_data import main
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 SAMPLE = ROOT / "data" / "housing_sample.csv"
 CONTRACT = ROOT / "data" / "contract.json"
 
