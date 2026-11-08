@@ -125,7 +125,7 @@ python -m housing_price.validate_data --data data/housing_sample.csv --contract 
 Ожидаемый вывод для образца (код 0):
 
 ```text
-проверка пройдена: правил: 33, sha256=e11e3d0baa7263ed5e5407f5f3ad5c398b07c49d739bc816953fa958bee146f0
+проверка пройдена: правил: 34, sha256=e11e3d0baa7263ed5e5407f5f3ad5c398b07c49d739bc816953fa958bee146f0
 ```
 
 Отчет лежит в `reports/validation/lr2.json` и в Git не коммитится. В CI он сохраняется артефактом:

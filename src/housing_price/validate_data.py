@@ -219,6 +219,24 @@ def validate(
             )
         )
 
+    # csv.DictReader не падает на строке другой длины: лишние значения кладет под ключ None,
+    # а недостающим полям ставит None (пустое поле в файле - это "", а не None).
+    bad_shape = [
+        index + 2
+        for index, row in enumerate(rows)
+        if None in row or any(row.get(name) is None for name in header)
+    ]
+    checks.append(
+        _check(
+            "row_shape",
+            not bad_shape,
+            f"во всех строках {len(header)} полей, как в заголовке"
+            if not bad_shape
+            else f"число полей не совпадает с заголовком ({len(header)}): "
+            f"{len(bad_shape)}, {_examples(bad_shape)}",
+        )
+    )
+
     minimum_rows = contract.get("minimum_rows", 0)
     enough = len(rows) >= minimum_rows
     checks.append(_check("minimum_rows", enough, f"{len(rows)} >= {minimum_rows}"))
