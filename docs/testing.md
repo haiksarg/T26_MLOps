@@ -25,7 +25,7 @@ python -m pytest -q --junitxml=reports/tests/lr5-pass.xml
 Отчет `reports/tests/lr5-pass.xml` в Git не хранится: CI сохраняет его как артефакт `test-report`,
 а для принятой версии он приложен к GitHub Release `lr5-v1`.
 
-Исходное состояние перед ЛР5: 97 тестов прошли, упавших нет.
+Исходное состояние перед ЛР5: 97 тестов прошли, упавших нет. После ЛР5: 171 тест.
 
 ## Адаптация задания
 
@@ -46,6 +46,11 @@ python -m pytest -q --junitxml=reports/tests/lr5-pass.xml
 | данные изменились после проверки | `tests/pipeline/test_smoke.py::test_train_refuses_data_changed_after_validation` | `train` возвращает код 2, модели нет |
 | этапы pipeline несовместимы между собой | `tests/pipeline/test_smoke.py::test_validate_train_load_predict` | падает один из шагов или форма предсказания |
 | цель попала в признаки | `tests/data/test_leakage.py::test_target_not_in_features` | assertion о составе `FEATURES` |
+| порядок признаков в модели изменился | `tests/model/test_bundle.py::test_bundle_features_match_features_including_order` | assertion о списке `features` |
+| файл модели поврежден или чужого формата | `tests/model/test_bundle.py::test_load_bundle_rejects_unusable_file` | `BundleError` вместо сбоя при predict |
+| обучение невоспроизводимо при том же seed | `tests/model/test_bundle.py::test_same_seed_gives_same_metrics_and_predictions_for_random_forest` | расхождение метрик или предсказаний |
+| метрика считается по `NaN` или бесконечности | `tests/evaluation/test_metric_preconditions.py::test_metrics_reject_nonfinite_values` | `ValueError` |
+| постоянная цель: `mae_skill` не определен (аналог одного класса) | `tests/evaluation/test_metric_preconditions.py::test_evaluate_regression_rejects_constant_target` | `ValueError` вместо `ZeroDivisionError` |
 
 ## Отрицательный отчет
 

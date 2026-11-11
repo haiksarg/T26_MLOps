@@ -128,8 +128,8 @@ stages:
       size: 1876
     - path: src/housing_price/train.py
       hash: md5
-      md5: 06cb16a2f2d31b53c8e61739164661ae
-      size: 10718
+      md5: b27e564eb5cd3bd1e85a160428214794
+      size: 10539
     params:
       params.yaml:
         preprocess:
