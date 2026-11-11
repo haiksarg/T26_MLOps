@@ -25,7 +25,7 @@ import yaml
 from sklearn.pipeline import Pipeline
 
 from housing_price.features import FEATURES, TARGET
-from housing_price.metrics import mae, rmse
+from housing_price.metrics import evaluate_regression
 from housing_price.models import SKOPS_TRUSTED_TYPES, make_estimator
 from housing_price.preprocess import build_preprocessor
 from housing_price.split_data import split
@@ -80,13 +80,8 @@ def train_and_evaluate(
     y_pred = model.predict(test_df[FEATURES]).tolist()
     # Точка отсчета MAE — прогноз медианой цены train для каждого района test.
     train_median = float(train_df[TARGET].median())
-    baseline_mae = mae(y_true, [train_median] * len(y_true))
-    model_mae = mae(y_true, y_pred)
     metrics = {
-        "mae": model_mae,
-        "rmse": rmse(y_true, y_pred),
-        "baseline_mae": baseline_mae,
-        "mae_skill": 1 - model_mae / baseline_mae,
+        **evaluate_regression(y_true, y_pred, train_median),
         "train_rows": len(train_df),
         "test_rows": len(test_df),
     }
