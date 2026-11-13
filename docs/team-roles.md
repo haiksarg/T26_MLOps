@@ -64,6 +64,6 @@
 | Участник | Роль в ЛР5 | Зона результата | Issue | Ветка для PR |
 |---|---|---|---|---|
 | Саргсян Айк ([@haiksarg](https://github.com/haiksarg)) | Integration engineer, Quality reviewer | Слои тестов, `conftest.py`, bundle, smoke-тест, отчеты, tag `lr5-v1` | [#39](https://github.com/haiksarg/T26_MLOps/issues/39) | `lab5/testing-pipeline` |
-| Комлев Кирилл ([@NGHtCONTROLLA](https://github.com/NGHtCONTROLLA)) | Data test engineer | Параметризованные тесты данных, проверка `row_shape` | [#40](https://github.com/haiksarg/T26_MLOps/issues/40) | `komlev` |
+| Комлев Кирилл ([@NGHtCONTROLA](https://github.com/NGHtCONTROLA)) | Data test engineer | Параметризованные тесты данных, проверка `row_shape` | [#40](https://github.com/haiksarg/T26_MLOps/issues/40) | `komlev` |
 | Ильин Андрей ([@icy07](https://github.com/icy07)) | Model test engineer | Тесты bundle и детерминированности | [#41](https://github.com/haiksarg/T26_MLOps/issues/41) | `adreyil` |
 | Шереметов Мурат ([@Sheremgato](https://github.com/Sheremgato)) | Evaluation test engineer | Предусловия метрик, отказ при постоянной цели | [#42](https://github.com/haiksarg/T26_MLOps/issues/42) | `mourberg` |
