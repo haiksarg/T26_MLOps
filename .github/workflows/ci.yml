@@ -25,7 +25,12 @@ jobs:
           name: validation-report
           path: reports/validation/lr2.json
       - run: python -m ruff check .
-      - run: python -m pytest -q
+      - run: python -m pytest -q --junitxml=reports/tests/lr5-pass.xml
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: test-report
+          path: reports/tests/lr5-pass.xml
       - run: python -m housing_price
 
   # Пайплайн DVC с нуля: скачать полный набор по ссылке из data/raw/housing.csv.dvc,

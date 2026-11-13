@@ -10,7 +10,7 @@ import yaml
 from housing_price import train
 from housing_price.models import make_estimator
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 SAMPLE = ROOT / "data" / "housing_sample.csv"
 
 

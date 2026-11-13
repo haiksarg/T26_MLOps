@@ -46,6 +46,7 @@ gh api repos/haiksarg/T26_MLOps/rules/branches/main
 - 2026-10-07 — до первого pull request участников rulesets на несколько минут переводились в `disabled`,
   чтобы переоформить сообщения первых коммитов (`git commit --amend` и force push; содержимое файлов
   не менялось). Затем rulesets включены с прежней конфигурацией — она совпадает с экспортом ниже.
+- 2026-11-07 — в ruleset `member-branches` добавлена ветка `komlev` нового участника @NGHtCONTROLA.
 
 ## Экспорт правил
 

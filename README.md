@@ -59,8 +59,7 @@ python -m pytest -q
 
 ```text
 All checks passed!
-.........                                                        [100%]
-9 passed in 0.03s
+... passed
 ```
 
 ## Запуск
@@ -253,6 +252,10 @@ python -m housing_price.compare_runs --experiment housing-price
 `reports/train_metrics.json` идентичен байт в байт. Сам файл модели `models/model.joblib` на этих ОС
 различается, поэтому на другой ОС `dvc repro` меняет в `dvc.lock` его MD5 и размер; причина пока не установлена.
 Модель сравнивается по метрикам, а не по контрольной сумме файла. Изменение этих двух строк в `dvc.lock` не коммитьте.
+
+## Тесты (ЛР5)
+
+Слои тестов, таблица рисков и отрицательный отчет — [docs/testing.md](docs/testing.md).
 
 ## Документация
 

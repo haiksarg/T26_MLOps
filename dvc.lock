@@ -128,8 +128,8 @@ stages:
       size: 1876
     - path: src/housing_price/train.py
       hash: md5
-      md5: f8e37d0e011a7f3e947ea1b5c0293191
-      size: 8345
+      md5: b27e564eb5cd3bd1e85a160428214794
+      size: 10539
     params:
       params.yaml:
         preprocess:
@@ -154,8 +154,8 @@ stages:
     outs:
     - path: models/model.joblib
       hash: md5
-      md5: ab549f278ff0780cea9623542048f9cc
-      size: 22796643
+      md5: 58451939355c5185546b86ff82bfc04b
+      size: 22797169
     - path: reports/train_metrics.json
       hash: md5
       md5: 87854292b5192c44db10f46bc1bbbe1f

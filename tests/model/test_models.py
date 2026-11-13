@@ -5,7 +5,6 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
-import skops.io as sio
 import yaml
 from sklearn.dummy import DummyRegressor
 from sklearn.ensemble import RandomForestRegressor
@@ -14,7 +13,9 @@ from sklearn.linear_model import LinearRegression
 from housing_price.models import MODEL_KINDS, SKOPS_TRUSTED_TYPES, make_estimator
 from housing_price.train import train_and_evaluate
 
-ROOT = Path(__file__).resolve().parents[1]
+sio = pytest.importorskip("skops.io")
+
+ROOT = Path(__file__).resolve().parents[2]
 MODEL_CASES = [
     ("median_baseline", DummyRegressor),
     ("linear_regression", LinearRegression),
