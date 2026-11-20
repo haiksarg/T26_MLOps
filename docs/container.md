@@ -84,6 +84,29 @@ python scripts/container_inspect.py --output reports/container/lr6-inspect.txt
 - метка revision не совпадает с commit;
 - в `/app` есть лишние файлы.
 
+## Smoke test
+
+После запуска контейнера:
+
+```bash
+python scripts/container_smoke.py --base-url http://127.0.0.1:8080 --output reports/container/lr6-smoke.json
+```
+
+Скрипт работает со стандартной библиотекой Python, без установки пакетов. Он опрашивает
+`/readyz` до `{"status":"ready"}` с общим таймаутом `--timeout` (по умолчанию 30 секунд),
+затем отправляет `POST /predict` с девятью типизированными признаками из примера API.
+Ожидание ответа на прогноз ограничено пятью секундами (или меньшим `--timeout`).
+Оба endpoint должны вернуть HTTP 200; `predicted_value` — конечное положительное число,
+`model_version` и `request_id` — непустые строки. Ошибка дает сообщение в stderr и код 1.
+
+После успеха скрипт записывает компактный JSON: адрес API, отправленный запрос и ответ.
+Переменные окружения и заголовки в отчет не включаются; адреса с учетными данными или query
+не допускаются. Отчет создается командой, вручную его не редактируют.
+Если порт хоста изменен через `APP_PORT`, укажи его в `--base-url`.
+В CI этот же скрипт сохраняет `reports/container/ci-smoke.json` в артефакт `container-reports`.
+
+Тесты без Docker: `python -m pytest -q tests/container/test_smoke_script.py`.
+
 ## Связь образа с commit
 
 - Tag `lr6-<short-sha>` и метка `org.opencontainers.image.revision` указывают на commit.
