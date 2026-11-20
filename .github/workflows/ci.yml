@@ -75,6 +75,7 @@ jobs:
           echo "SOURCE_COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
       - run: docker compose up --build --detach --wait --wait-timeout 120
       - run: python scripts/container_inspect.py --output reports/container/ci-inspect.txt
+      - run: python scripts/container_smoke.py --output reports/container/ci-smoke.json
       - run: docker compose logs --no-color app
         if: always()
       - uses: actions/upload-artifact@v7
