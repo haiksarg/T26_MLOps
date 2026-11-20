@@ -67,3 +67,18 @@
 | Комлев Кирилл ([@NGHtCONTROLA](https://github.com/NGHtCONTROLA)) | Data test engineer | Параметризованные тесты данных, проверка `row_shape` | [#40](https://github.com/haiksarg/T26_MLOps/issues/40) | `komlev` |
 | Ильин Андрей ([@icy07](https://github.com/icy07)) | Model test engineer | Тесты bundle и детерминированности | [#41](https://github.com/haiksarg/T26_MLOps/issues/41) | `adreyil` |
 | Шереметов Мурат ([@Sheremgato](https://github.com/Sheremgato)) | Evaluation test engineer | Предусловия метрик, отказ при постоянной цели | [#42](https://github.com/haiksarg/T26_MLOps/issues/42) | `mourberg` |
+
+# Роли команды №4 в ЛР6
+
+Контейнеризация: образ `mlops-housing-price:lr6-<short-sha>`, Compose, отчеты inspect и smoke.
+Работа собирается в ветке `lab6/containerization`. Каждый участник сдает **один PR** из своего форка:
+в нем и работа, и evidence card. Роль каждого отличается от его роли в ЛР5.
+
+| Участник | Роль в ЛР6 | Зона результата | Issue | Ветка для PR |
+|---|---|---|---|---|
+| Саргсян Айк ([@haiksarg](https://github.com/haiksarg)) | Image engineer | HTTP API, многостадийный `Dockerfile`, базовый `compose.yaml`, отчет inspect, CI job `container`, tag `lr6-v1` | [#51](https://github.com/haiksarg/T26_MLOps/issues/51) | `lab6/containerization` |
+| Комлев Кирилл ([@NGHtCONTROLA](https://github.com/NGHtCONTROLA)) | Model artifact engineer | Готовность `/readyz` по bundle, перенос модели в runtime | [#52](https://github.com/haiksarg/T26_MLOps/issues/52) | `komlev` |
+| Ильин Андрей ([@icy07](https://github.com/icy07)) | Runtime security engineer, Quality reviewer | Ограничения Compose, `.dockerignore`, таблица рисков | [#53](https://github.com/haiksarg/T26_MLOps/issues/53) | `adreyil` |
+| Шереметов Мурат ([@Sheremgato](https://github.com/Sheremgato)) | Smoke-test engineer | `scripts/container_smoke.py`, отчет `lr6-smoke.json` | [#54](https://github.com/haiksarg/T26_MLOps/issues/54) | `mourberg` |
+
+Review по кругу: @Sheremgato проверяет PR Кирилла, @NGHtCONTROLA — PR Андрея, @icy07 — PR Мурата и итоговый PR.

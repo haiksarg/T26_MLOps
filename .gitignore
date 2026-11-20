@@ -37,7 +37,9 @@ data/raw/*.*
 data/processed/
 data/split/
 # Отчеты валидации воспроизводятся командой из README и сохраняются как артефакт CI
-reports/
+reports/*
+# Отчеты контейнера ЛР6 (inspect, smoke) — доказательство принятой версии, хранятся в Git
+!reports/container/
 models/
 artifacts/
 # MLflow: база запусков и артефакты локальные, в Git не коммитятся (ЛР4)

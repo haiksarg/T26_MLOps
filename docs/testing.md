@@ -7,8 +7,9 @@
 | Unit и contract: данные | `tests/data/` | правила контракта, образец, разделение, утечка, предобработка |
 | Unit: оценка | `tests/evaluation/` | метрики, их предусловия, сравнение запусков |
 | Model | `tests/model/` | модели, bundle, детерминированность, журналирование в MLflow |
-| API | `tests/api/` | внешний интерфейс; сейчас это CLI, HTTP API появится в ЛР7 |
+| API | `tests/api/` | внешний интерфейс: CLI и HTTP API (`/healthz`, `/readyz`, `/predict`, ЛР6) |
 | Integration | `tests/pipeline/` | связка `validate -> train -> load -> predict` |
+| Container | `tests/container/` | контракт `Dockerfile` и `compose.yaml`, скрипты отчетов контейнера (ЛР6), без запуска Docker |
 
 Общие fixtures находятся в `tests/conftest.py`. Тесты не обращаются к сети и не зависят от порядка запуска,
 временные файлы создаются в `tmp_path`, эталонный `data/housing_sample.csv` не меняется.

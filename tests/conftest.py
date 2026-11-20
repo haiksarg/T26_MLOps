@@ -3,6 +3,7 @@
 from collections.abc import Callable
 from pathlib import Path
 
+import joblib
 import pandas as pd
 import pytest
 import yaml
@@ -66,3 +67,17 @@ def params() -> dict:
         "rf_max_depth": 3,
     }
     return config
+
+
+@pytest.fixture
+def bundle_path(tmp_path: Path, pipeline_frame: pd.DataFrame, params: dict) -> Path:
+    """Файл модели в формате bundle: маленький случайный лес, обученный на pipeline_frame."""
+    from housing_price.train import build_bundle, train_and_evaluate
+
+    config = {**params, "train": {**params["train"], "model": "random_forest"}}
+    model, metrics, _ = train_and_evaluate(pipeline_frame, config)
+    versions = {"data_sha256": "0" * 64, "contract_version": "1.0.0"}
+    path = tmp_path / "models" / "model.joblib"
+    path.parent.mkdir(parents=True)
+    joblib.dump(build_bundle(model, config, metrics, versions), path)
+    return path

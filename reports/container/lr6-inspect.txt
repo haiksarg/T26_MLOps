@@ -1,0 +1,15 @@
+# ЛР6: отчет inspect, получен командой
+# python scripts/container_inspect.py --image mlops-housing-price:lr6-4ba66c9 --output reports/container/lr6-inspect.txt
+commit: 4ba66c9430062ad95c327ecf230843c6821e16bf
+image: mlops-housing-price:lr6-4ba66c9
+
+$ docker image inspect mlops-housing-price:lr6-4ba66c9 --format 'id={{.Id}} size={{.Size}} user={{.Config.User}} health={{json .Config.Healthcheck}}'
+id=sha256:6ff036cb49ea75ad1386c693b6ff0b9994ab139def8e2217a177a6625ce22fb6 size=532976345 user=10001:10001 health={"Interval":10000000000,"Retries":3,"StartPeriod":20000000000,"Test":["CMD","python","-c","import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/readyz', timeout=2)"],"Timeout":3000000000}
+
+$ docker image inspect mlops-housing-price:lr6-4ba66c9 --format '{{index .Config.Labels "org.opencontainers.image.revision"}}'
+4ba66c9430062ad95c327ecf230843c6821e16bf
+
+$ docker run --rm --entrypoint python mlops-housing-price:lr6-4ba66c9 -c 'import json; from pathlib import Path; print(json.dumps(sorted(p.name for p in Path("/app").iterdir())))'
+["models"]
+
+result: OK

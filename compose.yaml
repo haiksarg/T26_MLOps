@@ -1,0 +1,25 @@
+# Запуск API стоимости жилья (ЛР6). Порядок команд — docs/container.md.
+# IMAGE_TAG обязателен (lr6-<short-sha>): образ связан с commit, плавающий latest не используется.
+services:
+  app:
+    build:
+      context: .
+      target: runtime
+      args:
+        SOURCE_COMMIT: ${SOURCE_COMMIT:-unknown}
+    image: mlops-housing-price:${IMAGE_TAG:?задайте IMAGE_TAG=lr6-<short-sha>, см. docs/container.md}
+    init: true
+    ports:
+      - "127.0.0.1:${APP_PORT:-8080}:8080"
+    environment:
+      MODEL_PATH: /app/models/model.joblib
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/readyz', timeout=2)"
+      interval: 10s
+      timeout: 3s
+      start_period: 20s
+      retries: 3

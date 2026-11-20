@@ -9,13 +9,16 @@ description = "Учебный MLOps-проект: прогнозирование
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
+    "fastapi==0.165.0",
     "pandas==3.0.6",
     "pyyaml==6.0.3",
     "scikit-learn==1.9.1",
+    "uvicorn==0.54.0",
 ]
 
 [project.optional-dependencies]
 dev = [
+    "httpx2==2.16.2",
     "pytest==9.1.1",
     "ruff==0.16.10",
 ]

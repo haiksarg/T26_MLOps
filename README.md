@@ -10,6 +10,7 @@
 - `data/` — локальные данные, в Git не коммитятся (см. `data/README.md`).
 - `docs/` — документация команды.
 - `.github/workflows/ci.yml` — CI: проверка данных, Ruff, pytest и smoke-запуск `python -m housing_price`.
+- `Dockerfile`, `compose.yaml`, `scripts/` — образ и запуск HTTP API (ЛР6, [docs/container.md](docs/container.md)).
 
 ## Требования
 
@@ -256,6 +257,19 @@ python -m housing_price.compare_runs --experiment housing-price
 ## Тесты (ЛР5)
 
 Слои тестов, таблица рисков и отрицательный отчет — [docs/testing.md](docs/testing.md).
+
+## Контейнер (ЛР6)
+
+HTTP API (`/healthz`, `/readyz`, `/predict`) в образе `mlops-housing-price:lr6-<short-sha>`. Перед сборкой нужен полный набор (`dvc update data/raw/housing.csv.dvc`).
+
+```bash
+export IMAGE_TAG=lr6-$(git rev-parse --short HEAD) SOURCE_COMMIT=$(git rev-parse HEAD)
+docker compose up --build --detach --wait
+python scripts/container_inspect.py --output reports/container/lr6-inspect.txt
+docker compose down
+```
+
+Стадии сборки, кэш слоев, команды для PowerShell и проверки образа — [docs/container.md](docs/container.md).
 
 ## Документация
 
