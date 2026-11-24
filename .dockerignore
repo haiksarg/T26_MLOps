@@ -1,0 +1,49 @@
+# Минимальный build context (ЛР6). Docker читает паттерны от корня проекта; для любой глубины нужен «**/».
+# Dockerfile копирует только src, tests, scripts, params.yaml, pyproject.toml, README.md, Dockerfile,
+# compose.yaml, .dockerignore и из data: raw/housing.csv, README.md, contract.json, housing_sample.csv.
+# Их исключать нельзя: сборка упадет на COPY, а тесты слоя container — на чтении файлов.
+
+# Секреты и локальные настройки: в образ и в кэш сборки не попадают
+.env
+.env.*
+*.pem
+*.key
+secrets
+
+# История Git и служебные каталоги репозитория
+.git
+.github
+.dvc
+.dvcignore
+
+# Локальные окружения и кэши
+.venv
+venv
+env
+**/__pycache__
+**/*.py[cod]
+**/*.egg-info
+.pytest_cache
+.ruff_cache
+.mypy_cache
+.coverage
+htmlcov
+build
+dist
+
+# Артефакты запусков: модель и пакет создаются внутри quality-стадии, а не берутся с хоста
+models
+reports
+mlruns
+mlflow.db
+
+# Промежуточные данные DVC-пайплайна воспроизводятся командой dvc repro
+data/split
+data/processed
+
+# Документация и метаданные репозитория не нужны для сборки
+docs
+CODEOWNERS
+CONTRIBUTING.md
+dvc.yaml
+dvc.lock
