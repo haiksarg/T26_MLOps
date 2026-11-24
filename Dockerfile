@@ -34,7 +34,7 @@ COPY data/README.md data/contract.json data/housing_sample.csv ./data/
 COPY params.yaml ./
 COPY src ./src
 # Тесты слоя container проверяют сами файлы сборки и скрипты из scripts/.
-COPY Dockerfile compose.yaml ./
+COPY Dockerfile compose.yaml .dockerignore ./
 COPY scripts ./scripts
 COPY tests ./tests
 

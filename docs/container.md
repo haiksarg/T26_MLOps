@@ -118,6 +118,44 @@ Error response from daemon: No such image: mlops-housing-price:lr6-defect
 
 Тест удален, сборка снова проходит. Дефект в принимаемую версию не входит.
 
+## Ограничения runtime и риски
+
+Сервис `app` в `compose.yaml` запускается с ограничениями:
+
+| Настройка | Значение | Что делает |
+|---|---|---|
+| `read_only` | `true` | корневая файловая система только для чтения |
+| `tmpfs` | `/tmp:size=16m,mode=1777` | единственное место для записи: память, не больше 16 МБ, исчезает при остановке |
+| `cap_drop` | `[ALL]` | у процесса нет Linux capabilities |
+| `security_opt` | `no-new-privileges:true` | процесс не может получить больше прав, чем у него есть |
+
+Проверка в работающем контейнере (`docker compose up --build --detach --wait`, затем):
+
+```bash
+docker compose exec app id
+docker compose exec app python -c "open('/tmp/ok', 'w').write('ok')"
+docker compose exec app python -c "open('/app/x', 'w')"
+docker compose exec app grep -E "CapEff|NoNewPrivs" /proc/self/status
+```
+
+Ожидается: `uid=10001`; запись в `/tmp` проходит; запись в `/app` завершается
+`OSError: [Errno 30] Read-only file system`; `CapEff: 0000000000000000`, `NoNewPrivs: 1`.
+
+`.dockerignore` оставляет в build context только то, что копирует `Dockerfile`: `src`, `tests`, `scripts`,
+`params.yaml`, `pyproject.toml`, `README.md`, сами файлы сборки и четыре файла из `data/`
+(`raw/housing.csv`, `README.md`, `contract.json`, `housing_sample.csv`). Секреты (`.env`), история Git, модели,
+отчеты, `mlruns`, `mlflow.db` и промежуточные данные DVC в context не попадают.
+
+| Риск | Ограничение | Проверка |
+|---|---|---|
+| сломанный код или модель попадает в образ | стадия `quality`: Ruff, pytest, контракт, SHA-256 набора, обучение; runtime берет модель и wheel только из нее | `tests/container/test_container_contract.py::test_quality_stage_is_a_gate_before_runtime`; отрицательный сценарий выше: сборка падает, образа нет |
+| процесс работает от root или с лишними правами | `USER 10001:10001`, `cap_drop: [ALL]`, `no-new-privileges:true` | `tests/container/test_runtime_restrictions.py::test_all_capabilities_are_dropped_and_none_added`, `::test_new_privileges_are_forbidden`; в контейнере `id` дает `uid=10001`, `CapEff: 0000000000000000`, `NoNewPrivs: 1` |
+| скомпрометированный процесс пишет в файловую систему образа | `read_only: true`; запись только в `tmpfs` `/tmp` на 16 МБ, без `volumes` | `::test_root_filesystem_is_read_only`, `::test_tmp_is_a_size_limited_tmpfs`, `::test_only_tmp_is_writable`; запись в `/tmp` проходит, в `/app` — `Read-only file system` |
+| секреты, история Git, модели и отчеты попадают в context и слои образа | `.dockerignore` и выборочный `COPY` в `Dockerfile` | `::test_dockerignore_excludes_secrets_and_local_artifacts`, `::test_dockerignore_does_not_exclude_any_copied_path`; размер context до и после — сборка `context-check.Dockerfile` из инструкции ЛР6 |
+| сервис доступен из сети хоста | порт публикуется только на `127.0.0.1` | `::test_ports_are_published_on_loopback_only` |
+| контейнер запущен без модели, но принимает трафик | healthcheck по `/readyz`, `docker compose up --wait` | `tests/container/test_container_contract.py::test_compose_healthcheck_uses_readyz`; `docker compose ps` показывает `healthy` |
+| образ нельзя связать с кодом | tag `lr6-<short-sha>`, метка `org.opencontainers.image.revision`, `latest` не используется | `::test_compose_has_no_version_and_requires_commit_tag`; `python scripts/container_inspect.py` |
+
 ## Части участников
 
 - Ограничения runtime в Compose, `.dockerignore`, таблица «риск — ограничение — проверка» — @icy07, [#53](https://github.com/haiksarg/T26_MLOps/issues/53).

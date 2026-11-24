@@ -9,6 +9,15 @@ services:
         SOURCE_COMMIT: ${SOURCE_COMMIT:-unknown}
     image: mlops-housing-price:${IMAGE_TAG:?задайте IMAGE_TAG=lr6-<short-sha>, см. docs/container.md}
     init: true
+    # Ограничения runtime (ЛР6, docs/container.md): корневая ФС только для чтения,
+    # запись разрешена лишь в /tmp (tmpfs в памяти), без capabilities и без повышения привилегий.
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     ports:
       - "127.0.0.1:${APP_PORT:-8080}:8080"
     environment:
